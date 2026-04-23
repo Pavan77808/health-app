@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Appointments - HealthApp</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f4f8; }
+    .navbar {
+      background: #2563eb;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar h1 { font-size: 20px; }
+    .back-btn {
+      background: white;
+      color: #2563eb;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .container { padding: 30px; }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #1e3a5f;
+    }
+    .add-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .add-btn:hover { background: #1d4ed8; }
+    .table-box {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: #2563eb;
+      color: white;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 14px;
+    }
+    td {
+      padding: 13px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      color: #333;
+    }
+    tr:hover { background: #f8faff; }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .badge-scheduled { background: #dbeafe; color: #1d4ed8; }
+    .badge-completed { background: #dcfce7; color: #16a34a; }
+    .badge-cancelled { background: #fee2e2; color: #dc2626; }
+    .badge-no_show   { background: #fef9c3; color: #854d0e; }
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 15px;
+    }
+    .cancel-appt-btn {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .cancel-appt-btn:hover { background: #fecaca; }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .modal h2 {
+      font-size: 18px;
+      color: #1e3a5f;
+      margin-bottom: 20px;
+    }
+    .form-group { margin-bottom: 15px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: #2563eb; }
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .save-btn {
+      flex: 1;
+      padding: 11px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .cancel-btn {
+      flex: 1;
+      padding: 11px;
+      background: #f3f4f6;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .msg {
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      display: none;
+      text-align: center;
+    }
+    .error { background: #fee2e2; color: #dc2626; }
+    .success { background: #dcfce7; color: #16a34a; }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <h1>🏥 HealthApp — Appointments</h1>
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back</button>
+  </div>
+
+  <div class="container">
+    <div class="top-bar">
+      <div class="page-title">📅 All Appointments</div>
+      <button class="add-btn" onclick="openModal()">+ Book Appointment</button>
+    </div>
+
+    <div class="table-box">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Patient ID</th>
+            <th>Doctor ID</th>
+            <th>Date & Time</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="appointmentTable">
+          <tr><td colspan="7" class="no-data">Loading appointments...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Book Appointment Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>📅 Book New Appointment</h2>
+
+      <div class="msg error" id="errorMsg"></div>
+      <div class="msg success" id="successMsg"></div>
+
+      <div class="form-group">
+        <label>Select Patient</label>
+        <select id="patientSelect">
+          <option value="">Loading patients...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Select Doctor</label>
+        <select id="doctorSelect">
+          <option value="">Loading doctors...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Appointment Date & Time</label>
+        <input type="datetime-local" id="apptDate" />
+      </div>
+
+      <div class="form-group">
+        <label>Reason for Visit</label>
+        <textarea id="reason" rows="3" placeholder="Describe the reason..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <input type="text" id="notes" placeholder="Any additional notes" />
+      </div>
+
+      <div class="modal-btns">
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="save-btn" onclick="bookAppointment()">Book Appointment</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = "http://127.0.0.1:8000";
+    const token = localStorage.getItem("token");
+
+    if (!token) { window.location.href = "login.html"; }
+
+    let allAppointments = [];
+
+    async function loadAppointments() {
+      try {
+        const response = await fetch(API + "/appointments/", {
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Accept": "application/json"
+          }
+        });
+        if (response.ok) {
+          allAppointments = await response.json();
+          renderTable(allAppointments);
+        } else {
+          document.getElementById("appointmentTable").innerHTML =
+            '<tr><td colspan="7" class="no-data">Could not load appointments</td></tr>';
+        }
+      } catch(err) {
+        document.getElementById("appointmentTable").innerHTML =
+          '<tr><td colspan="7" class="no-data">Server error</td></tr>';
+      }
+    }
+
+    function renderTable(appointments) {
+      const tbody = document.getElementById("appointmentTable");
+      if (appointments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">No appointments found</td></tr>';
+        return;
+      }
+      tbody.innerHTML = appointments.map((a, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>Patient #${a.patient_id}</td>
+          <td>Doctor #${a.doctor_id}</td>
+          <td>${new Date(a.appointment_date).toLocaleString()}</td>
+          <td>${a.reason || "-"}</td>
+          <td>
+            <span class="badge badge-${a.status}">
+              ${a.status}
+            </span>
+          </td>
+          <td>
+            ${a.status === "scheduled" ? `
+              <button class="cancel-appt-btn"
+                onclick="cancelAppointment(${a.id})">
+                Cancel
+              </button>` : "-"}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadPatientsAndDoctors() {
+      try {
+        const [pRes, dRes] = await Promise.all([
+          fetch(API + "/patients/", {
+            headers: { "Authorization": "Bearer " + token }
+          }),
+          fetch(API + "/doctors/", {
+            headers: { "Authorization": "Bearer " + token }
+          })
+        ]);
+
+        if (pRes.ok) {
+          const patients = await pRes.json();
+          const pSelect = document.getElementById("patientSelect");
+          pSelect.innerHTML = '<option value="">Select patient...</option>' +
+            patients.map(p =>
+              `<option value="${p.id}">${p.first_name} ${p.last_name}</option>`
+            ).join("");
+        }
+
+        if (dRes.ok) {
+          const doctors = await dRes.json();
+          const dSelect = document.getElementById("doctorSelect");
+          dSelect.innerHTML = '<option value="">Select doctor...</option>' +
+            doctors.map(d =>
+              `<option value="${d.id}">Dr. ${d.first_name} ${d.last_name} — ${d.specialization || "General"}</option>`
+            ).join("");
+        }
+      } catch(err) {
+        console.error("Could not load patients/doctors");
+      }
+    }
+
+    function openModal() {
+      document.getElementById("modalOverlay").classList.add("active");
+      loadPatientsAndDoctors();
+    }
+
+    function closeModal() {
+      document.getElementById("modalOverlay").classList.remove("active");
+      document.getElementById("errorMsg").style.display = "none";
+      document.getElementById("successMsg").style.display = "none";
+    }
+
+    async function bookAppointment() {
+      const patientId = document.getElementById("patientSelect").value;
+      const doctorId  = document.getElementById("doctorSelect").value;
+      const apptDate  = document.getElementById("apptDate").value;
+      const reason    = document.getElementById("reason").value.trim();
+      const notes     = document.getElementById("notes").value.trim();
+
+      if (!patientId || !doctorId || !apptDate) {
+        document.getElementById("errorMsg").textContent =
+          "Please select patient, doctor and date";
+        document.getElementById("errorMsg").style.display = "block";
+        return;
+      }
+
+      try {
+        const response = await fetch(API + "/appointments/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            patient_id: parseInt(patientId),
+            doctor_id: parseInt(doctorId),
+            appointment_date: new Date(apptDate).toISOString(),
+            reason: reason,
+            notes: notes
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById("successMsg").textContent =
+            "Appointment booked successfully!";
+          document.getElementById("successMsg").style.display = "block";
+          document.getElementById("errorMsg").style.display = "none";
+          loadAppointments();
+          setTimeout(closeModal, 1500);
+        } else {
+          document.getElementById("errorMsg").textContent =
+            data.detail || "Failed to book appointment";
+          document.getElementById("errorMsg").style.display = "block";
+        }
+      } catch(err) {
+        document.getElementById("errorMsg").textContent =
+          "Server error. Please try again.";
+        document.getElementById("errorMsg").style.display = "block";
+      }
+    }
+
+    async function cancelAppointment(id) {
+      if (!confirm("Are you sure you want to cancel this appointment?")) return;
+      try {
+        const response = await fetch(API + "/appointments/" + id, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({ status: "cancelled" })
+        });
+        if (response.ok) {
+          alert("Appointment cancelled!");
+          loadAppointments();
+        }
+      } catch(err) {
+        alert("Could not cancel appointment");
+      }
+    }
+
+    loadAppointments();
+  </script>
+</body>
+</html>

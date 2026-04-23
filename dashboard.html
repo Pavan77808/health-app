@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - HealthApp</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f4f8; display: flex; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 235px;
+      min-height: 100vh;
+      background: white;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    /* User Profile */
+    .sidebar-profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 15px 15px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .profile-avatar {
+      width: 55px;
+      height: 55px;
+      background: #e8f4e8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 8px;
+      border: 2px solid #d1fae5;
+    }
+    .profile-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #1e3a5f;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .profile-role {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* Search */
+    .sidebar-search {
+      padding: 12px 12px 8px;
+    }
+    .sidebar-search input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      font-size: 12px;
+      outline: none;
+      color: #555;
+      background: #fafafa;
+    }
+    .sidebar-search input:focus {
+      border-color: #2563eb;
+      background: white;
+    }
+
+    /* Nav Items */
+    .nav-section-label {
+      font-size: 11px;
+      color: #999;
+      font-weight: bold;
+      padding: 10px 15px 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #374151;
+      transition: all 0.15s;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover {
+      background: #f0f4ff;
+      color: #2563eb;
+      border-left-color: #2563eb;
+    }
+    .nav-item.active {
+      background: #eff6ff;
+      color: #2563eb;
+      border-left-color: #2563eb;
+      font-weight: bold;
+    }
+    .nav-item .nav-icon {
+      font-size: 15px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .nav-item .nav-label { flex: 1; }
+    .nav-badge {
+      background: #dc2626;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    /* ── TOP BAR ── */
+    .main-content {
+      margin-left: 235px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
+      background: white;
+      padding: 12px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2563eb;
+      letter-spacing: 2px;
+    }
+    .topbar-logo span { color: #dc2626; }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .topbar-icon-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #555;
+      position: relative;
+    }
+    .topbar-icon-btn:hover { color: #2563eb; }
+    .notif-dot {
+      position: absolute;
+      top: -2px; right: -2px;
+      width: 8px; height: 8px;
+      background: #dc2626;
+      border-radius: 50%;
+    }
+    .logout-btn {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .logout-btn:hover { background: #fecaca; }
+
+    /* ── PAGE CONTENT ── */
+    .page-content { padding: 25px; }
+    .page-header {
+      margin-bottom: 22px;
+    }
+    .page-header h1 {
+      font-size: 20px;
+      color: #1e3a5f;
+      font-weight: bold;
+    }
+    .page-header p {
+      font-size: 13px;
+      color: #888;
+      margin-top: 3px;
+    }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform 0.15s;
+      border-left: 4px solid transparent;
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-card.blue  { border-left-color: #2563eb; }
+    .stat-card.green { border-left-color: #16a34a; }
+    .stat-card.red   { border-left-color: #dc2626; }
+    .stat-card.amber { border-left-color: #d97706; }
+    .stat-card.purple{ border-left-color: #7c3aed; }
+    .stat-card.teal  { border-left-color: #0d9488; }
+    .stat-icon {
+      font-size: 28px;
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon.blue   { background: #dbeafe; }
+    .stat-icon.green  { background: #dcfce7; }
+    .stat-icon.red    { background: #fee2e2; }
+    .stat-icon.amber  { background: #fef3c7; }
+    .stat-icon.purple { background: #ede9fe; }
+    .stat-icon.teal   { background: #ccfbf1; }
+    .stat-info .number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1e3a5f;
+    }
+    .stat-info .label {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* ── QUICK NAV CARDS ── */
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #1e3a5f;
+      margin-bottom: 15px;
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 25px;
+    }
+    .quick-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 15px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    .quick-card:hover {
+      border-color: #2563eb;
+      transform: translateY(-3px);
+    }
+    .quick-card .qicon { font-size: 30px; margin-bottom: 8px; }
+    .quick-card .qtitle {
+      font-size: 13px;
+      font-weight: bold;
+      color: #1e3a5f;
+    }
+    .quick-card .qdesc {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    /* ── RECENT ACTIVITY ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #1e3a5f;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f9f9f9;
+      font-size: 13px;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-blue   { background: #2563eb; }
+    .dot-green  { background: #16a34a; }
+    .dot-red    { background: #dc2626; }
+    .dot-amber  { background: #d97706; }
+    .activity-text { flex: 1; color: #444; }
+    .activity-time { font-size: 11px; color: #aaa; }
+
+    /* EMERGENCY BUTTON */
+    .emergency-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* SEARCH FILTER */
+    .sidebar-nav { flex: 1; }
+    .nav-divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <div class="sidebar">
+
+    <!-- Profile -->
+    <div class="sidebar-profile">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-name" id="sidebarName">User</div>
+      <div class="profile-role" id="sidebarRole">Loading...</div>
+    </div>
+
+    <!-- Search -->
+    <div class="sidebar-search">
+      <input type="text" placeholder="Search For Page"
+        oninput="filterNav(this.value)" id="navSearch" />
+    </div>
+
+    <!-- Navigation -->
+    <div class="sidebar-nav" id="sidebarNav">
+
+      <a class="nav-item active" href="dashboard.html">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Dash Board</span>
+      </a>
+
+      <div class="nav-divider"></div>
+      
+      <a class="nav-item" href="appointments.html">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Appointments</span>
+      </a>
+      <a class="nav-item" href="patients.html">
+        <span class="nav-icon">🧑‍🤝‍🧑</span>
+        <span class="nav-label">Patient Data</span>
+      </a>
+
+      <a class="nav-item" href="billing.html">
+        <span class="nav-icon">💰</span>
+        <span class="nav-label">Billing</span>
+      </a>
+
+      <a class="nav-item" href="doctors.html">
+        <span class="nav-icon">👨‍⚕️</span>
+        <span class="nav-label">Doctor Master</span>
+      </a>
+
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🔬</span>
+        <span class="nav-label">Lab</span>
+      </a>
+
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📡</span>
+        <span class="nav-label">Radiology</span>
+      </a>
+
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🏥</span>
+        <span class="nav-label">Operation Theater</span>
+      </a>
+
+      <a class="nav-item" href="usermanagement.html">
+        <span class="nav-icon">👥</span>
+        <span class="nav-label">User Data</span>
+      </a>
+
+
+      <a class="nav-item" href="inventory.html">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Material Management</span>
+      </a>
+
+
+      <a class="nav-item" href="appointments.html">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Appointments</span>
+      </a>
+
+      <div class="nav-divider"></div>
+
+      <a class="nav-item"
+        href="http://127.0.0.1:8000/docs" target="_blank">
+        <span class="nav-icon">🔧</span>
+        <span class="nav-label">API Docs</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ══════════════ MAIN CONTENT ══════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-logo">Vennela</div>
+      </div>
+      <div class="topbar-right">
+        <button class="logout-btn" onclick="logout()">⏻ Logout</button>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <div class="page-header">
+        <h1>Welcome back, <span id="welcomeName">User</span> 👋</h1>
+        <p id="todayDate">Loading date...</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card blue" onclick="window.location.href='patients.html'">
+          <div class="stat-icon blue">🧑‍🤝‍🧑</div>
+          <div class="stat-info">
+            <div class="number" id="totalPatients">...</div>
+            <div class="label">Total Patients</div>
+          </div>
+        </div>
+        <div class="stat-card green" onclick="window.location.href='doctors.html'">
+          <div class="stat-icon green">👨‍⚕️</div>
+          <div class="stat-info">
+            <div class="number" id="totalDoctors">...</div>
+            <div class="label">Total Doctors</div>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon purple">🏥</div>
+          <div class="stat-info">
+            <div class="number" id="totalDepts">...</div>
+            <div class="label">Departments</div>
+          </div>
+        </div>
+        <div class="stat-card amber" onclick="window.location.href='appointments.html'">
+          <div class="stat-icon amber">📅</div>
+          <div class="stat-info">
+            <div class="number" id="todayAppts">...</div>
+            <div class="label">Today's Appointments</div>
+          </div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon red">💰</div>
+          <div class="stat-info">
+            <div class="number" id="pendingBills">...</div>
+            <div class="label">Pending Bills</div>
+          </div>
+        </div>
+        <div class="stat-card teal" onclick="window.location.href='billing.html'">
+          <div class="stat-icon teal">📊</div>
+          <div class="stat-info">
+            <div class="number" id="totalRevenue">...</div>
+            <div class="label">Revenue Collected</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Access -->
+      <div class="section-title">Quick Access</div>
+      <div class="quick-grid">
+        <a class="quick-card" href="patients.html">
+          <div class="qicon">🧑‍🤝‍🧑</div>
+          <div class="qtitle">Patients</div>
+          <div class="qdesc">Register & manage</div>
+        </a>
+        <a class="quick-card" href="doctors.html">
+          <div class="qicon">👨‍⚕️</div>
+          <div class="qtitle">Doctors</div>
+          <div class="qdesc">View all doctors</div>
+        </a>
+        <a class="quick-card" href="appointments.html">
+          <div class="qicon">📅</div>
+          <div class="qtitle">Appointments</div>
+          <div class="qdesc">Book & manage</div>
+        </a>
+        <a class="quick-card" href="billing.html">
+          <div class="qicon">💰</div>
+          <div class="qtitle">Billing</div>
+          <div class="qdesc">Invoices & payments</div>
+        </a>
+        <a class="quick-card" href="inventory.html">
+          <div class="qicon">📦</div>
+          <div class="qtitle">Inventory</div>
+          <div class="qdesc">Stock & supplies</div>
+        </a>
+        <a class="quick-card" href="http://127.0.0.1:8000/docs" target="_blank">
+          <div class="qicon">🔧</div>
+          <div class="qtitle">API Docs</div>
+          <div class="qdesc">Test endpoints</div>
+        </a>
+      </div>
+
+      <!-- Bottom Two Columns -->
+      <div class="two-col">
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-title">📋 Recent Activity</div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text">New patient Raj Kumar registered</div>
+            <div class="activity-time">Today</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-blue"></div>
+            <div class="activity-text">Appointment booked with Dr. Sharma</div>
+            <div class="activity-time">Today</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-amber"></div>
+            <div class="activity-text">Bill INV-SEED generated</div>
+            <div class="activity-time">Yesterday</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-red"></div>
+            <div class="activity-text">Low stock alert — IV Drip 500ml</div>
+            <div class="activity-time">Yesterday</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text">Payment received from Anushka Menon</div>
+            <div class="activity-time">2 days ago</div>
+          </div>
+        </div>
+
+        <!-- System Info -->
+        <div class="card">
+          <div class="card-title">🏥 System Info</div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text">Backend Server</div>
+            <div class="activity-time" id="serverStatus">Checking...</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-blue"></div>
+            <div class="activity-text">Database</div>
+            <div class="activity-time">SQLite ✅</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-blue"></div>
+            <div class="activity-text">API Version</div>
+            <div class="activity-time">v1.0.0</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text">Logged in as</div>
+            <div class="activity-time" id="loggedInAs">...</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-amber"></div>
+            <div class="activity-text">Low Stock Items</div>
+            <div class="activity-time" id="lowStockInfo">...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API   = "http://127.0.0.1:8000";
+    const token = localStorage.getItem("token");
+    const user  = JSON.parse(localStorage.getItem("user") || "{}");
+
+    if (!token) { window.location.href = "login.html"; }
+
+    // Set user info
+    const name = (user.username || "User").toUpperCase();
+    document.getElementById("sidebarName").textContent = name;
+    document.getElementById("sidebarRole").textContent = user.role || "staff";
+    document.getElementById("welcomeName").textContent = user.username || "User";
+    document.getElementById("loggedInAs").textContent  = user.username + " (" + user.role + ")";
+
+    // Set date
+    const now = new Date();
+    document.getElementById("todayDate").textContent =
+      now.toLocaleDateString("en-IN", {
+        weekday: "long", year: "numeric",
+        month: "long", day: "numeric"
+      });
+
+    // Load stats
+    async function loadStats() {
+      try {
+        const response = await fetch(API + "/dashboard/stats", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById("totalPatients").textContent = data.total_patients;
+          document.getElementById("totalDoctors").textContent  = data.total_doctors;
+          document.getElementById("totalDepts").textContent    = data.total_departments;
+          document.getElementById("todayAppts").textContent    = data.today_appointments;
+          document.getElementById("pendingBills").textContent  = data.pending_bills;
+          document.getElementById("totalRevenue").textContent  = "₹" + data.total_revenue_collected;
+          document.getElementById("lowStockInfo").textContent  = data.low_stock_alerts + " items";
+          document.getElementById("serverStatus").textContent  = "Online ✅";
+        }
+      } catch(err) {
+        document.getElementById("serverStatus").textContent = "Offline ❌";
+      }
+    }
+
+    // Sidebar search filter
+    function filterNav(query) {
+      const items = document.querySelectorAll(".nav-item");
+      query = query.toLowerCase();
+      items.forEach(item => {
+        const label = item.querySelector(".nav-label");
+        if (!label) return;
+        const text = label.textContent.toLowerCase();
+        item.style.display = text.includes(query) ? "flex" : "none";
+      });
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "login.html";
+    }
+
+    // Highlight active nav item
+    const currentPage = window.location.pathname.split("/").pop();
+    document.querySelectorAll(".nav-item").forEach(item => {
+      const href = item.getAttribute("href");
+      if (href && href === currentPage) {
+        item.classList.add("active");
+      } else if (currentPage === "dashboard.html" && href === "dashboard.html") {
+        item.classList.add("active");
+      }
+    });
+
+    loadStats();
+  </script>
+</body>
+</html>
