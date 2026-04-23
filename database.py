@@ -4,11 +4,11 @@ from sqlalchemy.orm import sessionmaker
 from urllib.parse import quote_plus
 import os
 
-MYSQL_USER = "root"
-MYSQL_PASS = quote_plus("970Alpha@123")
-MYSQL_HOST = "localhost"
-MYSQL_PORT = "3306"
-MYSQL_DB   = "health_app_db"
+MYSQL_USER = os.getenv("MYSQLUSER", "root")
+MYSQL_PASS = quote_plus(os.getenv("MYSQLPASSWORD", "970Alpha@123"))
+MYSQL_HOST = os.getenv("MYSQLHOST", "localhost")
+MYSQL_PORT = os.getenv("MYSQLPORT", "3306")
+MYSQL_DB   = os.getenv("MYSQLDATABASE", "health_app_db")
 
 DATABASE_URL = (
     "mysql+pymysql://" + MYSQL_USER + ":" + MYSQL_PASS +
@@ -40,4 +40,4 @@ def init_db():
         Department, Inventory, LabReport
     )
     Base.metadata.create_all(bind=engine)
-    print("MySQL Database initialized successfully.")
+    print("Database initialized successfully.")
